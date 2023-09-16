@@ -397,7 +397,6 @@ bool Items::loadFromOtb(const std::string& file)
 		}
 
 		clientIdToServerIdMap.emplace(clientId, serverId);
-		//szmata
 		// store the found item
 		if (serverId >= items.size()) {
 			items.resize(serverId + 1);
