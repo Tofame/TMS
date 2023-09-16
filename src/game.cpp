@@ -3558,8 +3558,11 @@ bool Game::playerSpeakTo(Player* player, SpeakClasses type, const std::string& r
                          const std::string& text)
 {
 	Player* toPlayer = getPlayerByName(receiver);
+	Database* db = Database::getInstance();
 	if (!toPlayer) {
-		player->sendTextMessage(MESSAGE_STATUS_SMALL, "A player with this name is not online.");
+		player->sendTextMessage(MESSAGE_STATUS_SMALL, "A player with this name is not online, but message will be saved");
+		std::string insertQuery = "INSERT INTO `offmsg` (`receiver`, `sender`, `message`) VALUES (" + db.escapeString(receiver) + ", " + db.escapeString(player->getName()) + ", " + db.escapeString(text) + ")";
+		db.executeQuery(insertQuery);
 		return false;
 	}
 
@@ -3573,7 +3576,9 @@ bool Game::playerSpeakTo(Player* player, SpeakClasses type, const std::string& r
 	toPlayer->onCreatureSay(player, type, text);
 
 	if (toPlayer->isInGhostMode() && !player->canSeeGhostMode(toPlayer)) {
-		player->sendTextMessage(MESSAGE_STATUS_SMALL, "A player with this name is not online.");
+		player->sendTextMessage(MESSAGE_STATUS_SMALL, "A player with this name is not online, but message will be saved");
+		std::string insertQuery = "INSERT INTO `offmsg` (`receiver`, `sender`, `message`) VALUES (" + db.escapeString(receiver) + ", " + db.escapeString(player->getName()) + ", " + db.escapeString(text) + ")";
+		db.executeQuery(insertQuery);
 	} else {
 		player->sendTextMessage(MESSAGE_STATUS_SMALL, fmt::format("Message sent to {:s}.", toPlayer->getName()));
 	}
