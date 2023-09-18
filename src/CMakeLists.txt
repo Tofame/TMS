@@ -76,6 +76,6 @@ set(tfs_SRC
 	${CMAKE_CURRENT_LIST_DIR}/vocation.cpp
 	${CMAKE_CURRENT_LIST_DIR}/weapons.cpp
 	${CMAKE_CURRENT_LIST_DIR}/wildcardtree.cpp
-	${CMAKE_CURRENT_LIST_DIR}/shaders.cpp
+	${CMAKE_CURRENT_LIST_DIR}/wings.cpp
 	${CMAKE_CURRENT_LIST_DIR}/xtea.cpp
 	PARENT_SCOPE)

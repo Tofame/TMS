@@ -141,14 +141,17 @@ class Player final : public Creature, public Cylinder
 
 		uint8_t getCurrentMount() const;
 		void setCurrentMount(uint8_t mountId);
+
 		bool isMounted() const
 		{
 			return defaultOutfit.lookMount != 0;
 		}
 		bool hasMount() const
 		{
+
 			return defaultOutfit.lookMount != 0;
 		}
+		
 		bool hasAura() const
 		{
 			return defaultOutfit.lookAura != 0;

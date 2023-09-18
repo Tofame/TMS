@@ -108,6 +108,7 @@ void Game::setGameState(GameState_t newState)
 
 			quests.loadFromXml();
 			mounts.loadFromXml();
+
 			auras.loadFromXml();
 			wings.loadFromXml();
 			shaders.loadFromXml();
@@ -3370,7 +3371,7 @@ void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit)
 	}
 
 	if (outfit.lookWings != 0) {
-		Wing* wing = wings.getWingByID(outfit.lookWings);
+		Wing* wing = wings.getWingByClientID(outfit.lookWings);
 		if (!wing) {
 			return;
 		}
@@ -3381,7 +3382,7 @@ void Game::playerChangeOutfit(uint32_t playerId, Outfit_t outfit)
 	}
 
 	if (outfit.lookAura != 0) {
-		Aura* aura = auras.getAuraByID(outfit.lookAura);
+		Aura* aura = auras.getAuraByClientID(outfit.lookAura);
 		if (!aura) {
 			return;
 		}

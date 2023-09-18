@@ -491,6 +491,7 @@ class Game
 		bool reload(ReloadTypes_t reloadType);
 
 		Auras auras;
+		
 		Groups groups;
 		Map map;
 		Mounts mounts;
