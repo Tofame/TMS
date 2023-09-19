@@ -3,22 +3,12 @@
 
 ### Pull Request Prelude
 
-<!-- Thank you for working on improving The Forgotten Server! -->
-<!-- Please complete these steps and check the following boxes by putting an `x`
-     inside the [brackets] before filing your Pull Request. -->
+1. Tests Check (Mark one of those with an 'x')
+- [ ] My code has been thoroughly tested and there were no issues.
+- [ ] My code still needs testing.
 
-- [ ] I have followed [proper The Forgotten Server code styling][code].
-- [ ] I have read and understood the [contribution guidelines][cont] before making this PR.
-- [ ] I am aware that this PR may be closed if the above-mentioned criteria are not fulfilled.
+### Changes Proposed <!-- Describe the changes that this pull request makes. -->
 
-### Changes Proposed
 
-<!-- Describe the changes that this pull request makes. -->
 
 **Issues addressed:** <!-- Write here the issue number, if any. -->
-
-
-<!-- You can safely ignore the links below:  -->
-
-[cont]: https://github.com/otland/forgottenserver/wiki/Contributing
-[code]: https://github.com/otland/forgottenserver/wiki/TFS-Coding-Style-Guide

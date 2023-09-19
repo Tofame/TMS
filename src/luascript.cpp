@@ -758,6 +758,8 @@ Outfit_t LuaScriptInterface::getOutfit(lua_State* L, int32_t arg)
 {
 	Outfit_t outfit;
 	outfit.lookMount = getField<uint16_t>(L, arg, "lookMount");
+	outfit.lookWings = getField<uint16_t>(L, arg, "lookWings");
+	outfit.lookAura = getField<uint16_t>(L, arg, "lookAura");
 	outfit.lookAddons = getField<uint8_t>(L, arg, "lookAddons");
 
 	outfit.lookFeet = getField<uint8_t>(L, arg, "lookFeet");
@@ -767,6 +769,7 @@ Outfit_t LuaScriptInterface::getOutfit(lua_State* L, int32_t arg)
 
 	outfit.lookTypeEx = getField<uint16_t>(L, arg, "lookTypeEx");
 	outfit.lookType = getField<uint16_t>(L, arg, "lookType");
+	outfit.lookShader = getField<uint16_t>(L, arg, "lookShader");
 
 	lua_pop(L, 8);
 	return outfit;
@@ -945,6 +948,9 @@ void LuaScriptInterface::pushOutfit(lua_State* L, const Outfit_t& outfit)
 	setField(L, "lookFeet", outfit.lookFeet);
 	setField(L, "lookAddons", outfit.lookAddons);
 	setField(L, "lookMount", outfit.lookMount);
+	setField(L, "lookWings", outfit.lookWings);
+	setField(L, "lookAura", outfit.lookAura);
+	setField(L, "lookShader", outfit.lookShader);
 }
 
 void LuaScriptInterface::pushOutfit(lua_State* L, const Outfit* outfit)
@@ -1874,6 +1880,7 @@ void LuaScriptInterface::registerFunctions()
 
 	registerEnum(RELOAD_TYPE_ALL)
 	registerEnum(RELOAD_TYPE_ACTIONS)
+	registerEnum(RELOAD_TYPE_AURAS)
 	registerEnum(RELOAD_TYPE_CHAT)
 	registerEnum(RELOAD_TYPE_CONFIG)
 	registerEnum(RELOAD_TYPE_CREATURESCRIPTS)
@@ -1888,9 +1895,11 @@ void LuaScriptInterface::registerFunctions()
 	registerEnum(RELOAD_TYPE_QUESTS)
 	registerEnum(RELOAD_TYPE_RAIDS)
 	registerEnum(RELOAD_TYPE_SCRIPTS)
+	registerEnum(RELOAD_TYPE_SHADERS)
 	registerEnum(RELOAD_TYPE_SPELLS)
 	registerEnum(RELOAD_TYPE_TALKACTIONS)
 	registerEnum(RELOAD_TYPE_WEAPONS)
+	registerEnum(RELOAD_TYPE_WINGS)
 
 	registerEnum(ZONE_PROTECTION)
 	registerEnum(ZONE_NOPVP)
@@ -2020,6 +2029,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Game", "getPlayerCount", LuaScriptInterface::luaGameGetPlayerCount);
 	registerMethod("Game", "getNpcCount", LuaScriptInterface::luaGameGetNpcCount);
 	registerMethod("Game", "getMonsterTypes", LuaScriptInterface::luaGameGetMonsterTypes);
+	registerMethod("Game", "getCurrencyItems", LuaScriptInterface::luaGameGetCurrencyItems);
 
 	registerMethod("Game", "getTowns", LuaScriptInterface::luaGameGetTowns);
 	registerMethod("Game", "getHouses", LuaScriptInterface::luaGameGetHouses);
@@ -2197,6 +2207,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Item", "getCharges", LuaScriptInterface::luaItemGetCharges);
 	registerMethod("Item", "getFluidType", LuaScriptInterface::luaItemGetFluidType);
 	registerMethod("Item", "getWeight", LuaScriptInterface::luaItemGetWeight);
+	registerMethod("Item", "getWorth", LuaScriptInterface::luaItemGetWorth);
 
 	registerMethod("Item", "getSubType", LuaScriptInterface::luaItemGetSubType);
 
@@ -2690,6 +2701,8 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("ItemType", "getFluidSource", LuaScriptInterface::luaItemTypeGetFluidSource);
 	registerMethod("ItemType", "getCapacity", LuaScriptInterface::luaItemTypeGetCapacity);
 	registerMethod("ItemType", "getWeight", LuaScriptInterface::luaItemTypeGetWeight);
+	registerMethod("ItemType", "getWorth", LuaScriptInterface::luaItemTypeGetWorth);
+
 
 	registerMethod("ItemType", "getHitChance", LuaScriptInterface::luaItemTypeGetHitChance);
 	registerMethod("ItemType", "getShootRange", LuaScriptInterface::luaItemTypeGetShootRange);
@@ -4308,6 +4321,22 @@ int LuaScriptInterface::luaGameGetMonsterTypes(lua_State* L)
 		pushUserdata<MonsterType>(L, &mType.second);
 		setMetatable(L, -1, "MonsterType");
 		lua_setfield(L, -2, mType.first.c_str());
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaGameGetCurrencyItems(lua_State* L)
+{
+	// Game.getCurrencyItems()
+	const auto& currencyItems = Item::items.currencyItems;
+	size_t size = currencyItems.size();
+	lua_createtable(L, size, 0);
+
+	for (const auto& it : currencyItems) {
+		const ItemType& itemType = Item::items[it.second];
+		pushUserdata<const ItemType>(L, &itemType);
+		setMetatable(L, -1, "ItemType");
+		lua_rawseti(L, -2, size--);
 	}
 	return 1;
 }
@@ -6356,6 +6385,18 @@ int LuaScriptInterface::luaItemGetWeight(lua_State* L)
 	Item* item = getUserdata<Item>(L, 1);
 	if (item) {
 		lua_pushnumber(L, item->getWeight());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaItemGetWorth(lua_State* L)
+{
+	// item:getWorth()
+	Item* item = getUserdata<Item>(L, 1);
+	if (item) {
+		lua_pushnumber(L, item->getWorth());
 	} else {
 		lua_pushnil(L);
 	}
@@ -12047,6 +12088,19 @@ int LuaScriptInterface::luaItemTypeGetWeight(lua_State* L)
 	return 1;
 }
 
+int LuaScriptInterface::luaItemTypeGetWorth(lua_State* L)
+{
+	// itemType:getWorth()
+	const ItemType* itemType = getUserdata<const ItemType>(L, 1);
+	if (!itemType) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_pushnumber(L, itemType->worth);
+	return 1;
+}
+
 int LuaScriptInterface::luaItemTypeGetHitChance(lua_State* L)
 {
 	// itemType:getHitChance()
@@ -12943,11 +12997,14 @@ int LuaScriptInterface::luaConditionSetFormula(lua_State* L)
 int LuaScriptInterface::luaConditionSetOutfit(lua_State* L)
 {
 	// condition:setOutfit(outfit)
-	// condition:setOutfit(lookTypeEx, lookType, lookHead, lookBody, lookLegs, lookFeet[, lookAddons[, lookMount]])
+	// condition:setOutfit(lookTypeEx, lookType, lookHead, lookBody, lookLegs, lookFeet[, lookAddons[, lookMount, lookWings, lookAura, lookShader]])
 	Outfit_t outfit;
 	if (isTable(L, 2)) {
 		outfit = getOutfit(L, 2);
 	} else {
+		outfit.lookShader = getNumber<uint16_t>(L, 12, outfit.lookShader);
+		outfit.lookAura = getNumber<uint16_t>(L, 11, outfit.lookAura);
+		outfit.lookWings = getNumber<uint16_t>(L, 10, outfit.lookWings);
 		outfit.lookMount = getNumber<uint16_t>(L, 9, outfit.lookMount);
 		outfit.lookAddons = getNumber<uint8_t>(L, 8, outfit.lookAddons);
 		outfit.lookFeet = getNumber<uint8_t>(L, 7);
@@ -16885,7 +16942,7 @@ int LuaScriptInterface::luaWeaponCharges(lua_State* L)
 		uint16_t id = weapon->getID();
 		ItemType& it = Item::items.getItemType(id);
 
-		it.charges = getNumber<uint8_t>(L, 2);
+		it.charges = getNumber<uint32_t>(L, 2);
 		it.showCharges = showCharges;
 		pushBoolean(L, true);
 	} else {
