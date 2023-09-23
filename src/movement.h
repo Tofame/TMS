@@ -33,7 +33,21 @@ struct MoveEventList {
 };
 
 using VocEquipMap = std::map<uint16_t, bool>;
+class BooleanHolder { // Class made to share Boolean value for both MoveEvents and MoveEvent.
+public:
+	BooleanHolder() : value(false) {}
 
+	bool getValue() const {
+		return value;
+	}
+
+	void setValue(bool newValue) {
+		value = newValue;
+	}
+
+private:
+	bool value;
+};
 class MoveEvents final : public BaseEvents
 {
 	public:
@@ -56,6 +70,8 @@ class MoveEvents final : public BaseEvents
 		void clear(bool fromLua) override final;
 
 	private:
+		BooleanHolder booleanHolder;
+		uint16_t m_lastZoneId;
 		using MoveListMap = std::map<int32_t, MoveEventList>;
 		using MovePosListMap = std::map<Position, MoveEventList>;
 		void clearMap(MoveListMap& map, bool fromLua);
@@ -76,6 +92,7 @@ class MoveEvents final : public BaseEvents
 		MoveListMap uniqueIdMap;
 		MoveListMap actionIdMap;
 		MoveListMap itemIdMap;
+		MoveListMap m_zoneIdMap;
 		MovePosListMap positionMap;
 
 		LuaScriptInterface scriptInterface;
@@ -223,6 +240,7 @@ class MoveEvent final : public Event
 		EquipFunction equipFunction;
 
 	private:
+		BooleanHolder booleanHolder;
 		std::string getScriptEventName() const override;
 
 		uint32_t slot = SLOTP_WHEREEVER;

@@ -6,6 +6,7 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include <fmt/format.h>
 
+#include <unordered_set>
 #include "luascript.h"
 #include "chat.h"
 #include "player.h"
@@ -26,7 +27,7 @@
 #include "globalevent.h"
 #include "script.h"
 #include "weapons.h"
-
+#include "zonedata.h"
 extern Chat* g_chat;
 extern Game g_game;
 extern Monsters g_monsters;
@@ -1472,6 +1473,7 @@ void LuaScriptInterface::registerFunctions()
 	registerEnum(CREATURETYPE_NPC)
 	registerEnum(CREATURETYPE_SUMMON_OWN)
 	registerEnum(CREATURETYPE_SUMMON_OTHERS)
+	registerEnum(CREATURETYPE_ANY)
 
 	registerEnum(CLIENTOS_LINUX)
 	registerEnum(CLIENTOS_WINDOWS)
@@ -2059,6 +2061,20 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Game", "getAccountStorageValue", LuaScriptInterface::luaGameGetAccountStorageValue);
 	registerMethod("Game", "setAccountStorageValue", LuaScriptInterface::luaGameSetAccountStorageValue);
 	registerMethod("Game", "saveAccountStorageValues", LuaScriptInterface::luaGameSaveAccountStorageValues);
+
+	// Zone System Counts
+	registerMethod("Game", "getZoneCreatureCount", LuaScriptInterface::luaGameZoneGetCreatureCount);
+	registerMethod("Game", "getZonePlayerCount", LuaScriptInterface::luaGameZoneGetPlayerCount);
+	registerMethod("Game", "getZoneNpcCount", LuaScriptInterface::luaGameZoneGetNpcCount);
+	registerMethod("Game", "getZoneMonsterCount", LuaScriptInterface::luaGameZoneGetMonsterCount);
+	registerMethod("Game", "getZoneTileCount", LuaScriptInterface::luaGameZoneGetTileCount);
+	// Zone System Vectors:
+	registerMethod("Game", "getZoneCreaturesVector", LuaScriptInterface::luaGameZoneGetCreaturesVector);
+	registerMethod("Game", "getZonePlayersVector", LuaScriptInterface::luaGameZoneGetPlayersVector);
+	registerMethod("Game", "getZoneNpcsVector", LuaScriptInterface::luaGameZoneGetNpcsVector);
+	registerMethod("Game", "getZoneMonstersVector", LuaScriptInterface::luaGameZoneGetMonstersVector);
+	registerMethod("Game", "getZonePositionsVector", LuaScriptInterface::luaGameZoneGetPositionsVector);
+	registerMethod("Game", "getZoneTilesVector", LuaScriptInterface::luaGameZoneGetTilesVector);
 
 	// Variant
 	registerClass("Variant", "", LuaScriptInterface::luaVariantCreate);
@@ -4700,6 +4716,161 @@ int LuaScriptInterface::luaGameSaveAccountStorageValues(lua_State* L)
 
 	return 1;
 }
+
+// Zone system Counts:
+int LuaScriptInterface::luaGameZoneGetCreatureCount(lua_State* L)
+{
+
+	// Ensure there are two arguments: zoneId and dataType
+	if (lua_gettop(L) != 2) {
+		return luaL_error(L, "Usage: getCreatureCountZone(zoneId, dataType)");
+	}
+
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	CreatureType_t dataType = static_cast<CreatureType_t>(luaL_checkinteger(L, 2));
+	int creatureCount = g_game.getCreatureCount(zoneId, dataType);
+
+	lua_pushinteger(L, creatureCount);
+
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetPlayerCount(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	int count = g_game.getPlayerCount(zoneId);
+	lua_pushinteger(L, count);
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetNpcCount(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	int count = g_game.getNpcCount(zoneId);
+	lua_pushinteger(L, count);
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetMonsterCount(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	int count = g_game.getMonsterCount(zoneId);
+	lua_pushinteger(L, count);
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetTileCount(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	int count = g_game.getTileCount(zoneId);
+	lua_pushinteger(L, count);
+	return 1;
+}
+// Zone system Vectors:
+
+int LuaScriptInterface::luaGameZoneGetCreaturesVector(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	CreatureType_t dataType = static_cast<CreatureType_t>(luaL_checkinteger(L, 2));
+	std::vector<Creature*> creatures = g_game.getCreaturesInZone(zoneId, dataType);
+
+	lua_createtable(L, creatures.size(), 0);
+
+	int index = 0;
+	for (Creature* creature : creatures) {
+		pushUserdata<Creature>(L, creature);
+		setCreatureMetatable(L, -1, creature);
+		lua_rawseti(L, -2, ++index);
+	}
+
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetMonstersVector(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	std::vector<Creature*> monsters = g_game.getMonstersInZone(zoneId);
+
+	lua_createtable(L, monsters.size(), 0);
+
+	int index = 0;
+	for (Creature* monster : monsters) {
+		pushUserdata<Creature>(L, monster);
+		setCreatureMetatable(L, -1, monster);
+		lua_rawseti(L, -2, ++index);
+	}
+
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetPlayersVector(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	std::vector<Creature*> players = g_game.getPlayersInZone(zoneId);
+
+	lua_createtable(L, players.size(), 0);
+
+	int index = 0;
+	for (Creature* player : players) {
+		pushUserdata<Creature>(L, player);
+		setCreatureMetatable(L, -1, player);
+		lua_rawseti(L, -2, ++index);
+	}
+
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetNpcsVector(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	std::vector<Creature*> npcs = g_game.getNpcsInZone(zoneId);
+
+	lua_createtable(L, npcs.size(), 0);
+
+	int index = 0;
+	for (Creature* npc : npcs) {
+		pushUserdata<Creature>(L, npc);
+		setCreatureMetatable(L, -1, npc);
+		lua_rawseti(L, -2, ++index);
+	}
+
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetPositionsVector(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	std::vector<Position> positions = g_game.getPositionsInZone(zoneId);
+
+	lua_createtable(L, positions.size(), 0);
+
+	int index = 0;
+	for (Position& position : positions) {
+		pushUserdata<Position>(L, &position);
+		setMetatable(L, -1, "Tile"); // chuj  wi
+		lua_rawseti(L, -2, ++index);
+	}
+
+	return 1;
+}
+
+int LuaScriptInterface::luaGameZoneGetTilesVector(lua_State* L)
+{
+	uint16_t zoneId = static_cast<uint16_t>(luaL_checkinteger(L, 1));
+	std::vector<Tile*> tiles = g_game.getTilesInZone(zoneId);
+
+	lua_createtable(L, tiles.size(), 0);
+
+	int index = 0;
+	for (Tile* tile : tiles) {
+		pushUserdata<Tile>(L, tile);
+		setMetatable(L, -1, "Tile"); // chuj  wi 2
+		lua_rawseti(L, -2, ++index);
+	}
+
+	return 1;
+}
+
 
 // Variant
 int LuaScriptInterface::luaVariantCreate(lua_State* L)
