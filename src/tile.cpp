@@ -420,6 +420,15 @@ void Tile::onUpdateTileItem(Item* oldItem, const ItemType& oldType, Item* newIte
 	}
 }
 
+void Tile::setZoneId(uint16_t zoneId)
+{
+	m_zoneId = zoneId;
+	g_game.addGameZone(getTile(), zoneId);
+}
+
+uint16_t Tile::getZoneId() const {
+	return m_zoneId;
+}
 void Tile::onRemoveTileItem(const SpectatorVec& spectators, const std::vector<int32_t>& oldStackPosVector, Item* item)
 {
 	if (item->hasProperty(CONST_PROP_MOVEABLE) || item->getContainer()) {

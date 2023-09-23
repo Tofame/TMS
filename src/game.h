@@ -17,6 +17,7 @@
 #include "wildcardtree.h"
 #include "quests.h"
 #include "shaders.h"
+#include "zonedata.h"
 
 class ServiceManager;
 class Creature;
@@ -488,6 +489,24 @@ class Game
 		bool addUniqueItem(uint16_t uniqueId, Item* item);
 		void removeUniqueItem(uint16_t uniqueId);
 
+		//zone system int
+		void addGameZone(Tile* tile, uint16_t zoneId);
+
+		int getCreatureCount(uint16_t zoneId, CreatureType_t dataType);
+		int getCreatureCount(uint16_t zoneId);
+		int getTileCount(uint16_t zoneId);
+		int getPlayerCount(uint16_t zoneId);
+		int getNpcCount(uint16_t zoneId);
+		int getMonsterCount(uint16_t zoneId);
+		//zone system vectors
+		std::vector<Creature*> getPlayersInZone(uint16_t zoneId);
+		std::vector<Creature*> getNpcsInZone(uint16_t zoneId);
+		std::vector<Creature*> getMonstersInZone(uint16_t zoneId);
+		std::vector<Position> getPositionsInZone(uint16_t zoneId) const;
+		std::vector<Tile*> getTilesInZone(uint16_t zoneId) const;
+		std::vector<Creature*> getCreaturesInZone(uint16_t zoneId);
+		std::vector<Creature*> getCreaturesInZone(uint16_t zoneId, CreatureType_t dataType);
+
 		bool reload(ReloadTypes_t reloadType);
 
 		Auras auras;
@@ -514,7 +533,7 @@ class Game
 		void clearTilesToClean() {
 			tilesToClean.clear();
 		}
-
+		uint16_t zoneId;
 	private:
 		bool playerSaySpell(Player* player, SpeakClasses type, const std::string& text);
 		void playerWhisper(Player* player, const std::string& text);
@@ -530,6 +549,7 @@ class Game
 		std::unordered_map<uint32_t, Player*> mappedPlayerGuids;
 		std::unordered_map<uint32_t, Guild*> guilds;
 		std::unordered_map<uint16_t, Item*> uniqueItems;
+		std::unordered_map<uint16_t, ZoneData> zoneIdToData;
 		std::map<uint32_t, uint32_t> stages;
 		std::unordered_map<uint32_t, std::unordered_map<uint32_t, int32_t>> accountStorageMap;
 

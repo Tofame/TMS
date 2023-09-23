@@ -1561,6 +1561,20 @@ class LuaScriptInterface
 		// exclusively for wands & distance weapons
 		static int luaWeaponShootType(lua_State* L);
 
+		//Zone Multi functions:
+		static int luaGameZoneGetCreatureCount(lua_State* L);
+		//Zone Counts:
+		static int luaGameZoneGetPlayerCount(lua_State* L);
+		static int luaGameZoneGetNpcCount(lua_State* L);
+		static int luaGameZoneGetMonsterCount(lua_State* L);
+		static int luaGameZoneGetTileCount(lua_State* L);
+		//zone Vectors:
+		static int luaGameZoneGetPlayersVector(lua_State* L);
+		static int luaGameZoneGetNpcsVector(lua_State* L);
+		static int luaGameZoneGetMonstersVector(lua_State* L);
+		static int luaGameZoneGetPositionsVector(lua_State* L);
+		static int luaGameZoneGetTilesVector(lua_State* L);
+		static int luaGameZoneGetCreaturesVector(lua_State* L);
 		//
 		std::string lastLuaError;
 

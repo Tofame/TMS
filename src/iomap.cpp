@@ -237,6 +237,7 @@ bool IOMap::parseTileArea(OTB::Loader& loader, const OTB::Node& tileAreaNode, Ma
 		Tile* tile = nullptr;
 		Item* ground_item = nullptr;
 		uint32_t tileflags = TILESTATE_NONE;
+		uint16_t zoneId = 0;
 
 		if (tileNode.type == OTBM_HOUSETILE) {
 			uint32_t houseId;
@@ -277,6 +278,15 @@ bool IOMap::parseTileArea(OTB::Loader& loader, const OTB::Node& tileAreaNode, Ma
 
 					if ((flags & OTBM_TILEFLAG_NOLOGOUT) != 0) {
 						tileflags |= TILESTATE_NOLOGOUT;
+					}
+					if ((flags & OTBM_TILEFLAG_ZONE) != 0) { //o tutaj nigdy nie przechodzi
+						tileflags |= TILESTATE_ZONE;
+
+						if (!propStream.read<uint16_t>(zoneId)) {
+							setLastErrorString(
+								fmt::format("[x:{:d}, y:{:d}, z:{:d}] Failed to read tile zone id.", x, y, z));
+							return false;
+						}
 					}
 					break;
 				}
@@ -372,6 +382,7 @@ bool IOMap::parseTileArea(OTB::Loader& loader, const OTB::Node& tileAreaNode, Ma
 		}
 
 		tile->setFlag(static_cast<tileflags_t>(tileflags));
+		tile->setZoneId(zoneId);
 
 		map.setTile(x, y, z, tile);
 	}

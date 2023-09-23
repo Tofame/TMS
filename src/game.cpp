@@ -5700,6 +5700,163 @@ bool Game::addUniqueItem(uint16_t uniqueId, Item* item)
 	return result.second;
 }
 
+void Game::addGameZone(Tile* tile, uint16_t zoneId) {
+	auto it = zoneIdToData.find(zoneId);
+
+	if (it == zoneIdToData.end()) {
+		zoneIdToData.emplace(zoneId, ZoneData(tile));
+	}
+	else {
+		it->second.addTile(tile);
+	}
+}
+
+int Game::getPlayerCount(uint16_t zoneId) {
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return 0;
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getPlayerCount();
+}
+
+int Game::getNpcCount(uint16_t zoneId) {
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return 0;
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getNpcCount();
+}
+
+int Game::getCreatureCount(uint16_t zoneId)
+{
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return 0;
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getCreatureCount();
+}
+
+int Game::getCreatureCount(uint16_t zoneId, CreatureType_t dataType)
+{
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return 0;
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getCreatureCount(dataType);
+}
+
+
+int Game::getTileCount(uint16_t zoneId)
+{
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return 0;
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getTilesCount();
+}
+
+int Game::getMonsterCount(uint16_t zoneId)
+{
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return 0;
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getMonsterCount();
+}
+
+
+//wektory od zoneów
+std::vector<Creature*> Game::getPlayersInZone(uint16_t zoneId) {
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return std::vector<Creature*>();
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getPlayers();
+}
+
+std::vector<Creature*> Game::getNpcsInZone(uint16_t zoneId) {
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return std::vector<Creature*>();
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getNpcs();
+}
+
+std::vector<Creature*> Game::getMonstersInZone(uint16_t zoneId)
+{
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return std::vector<Creature*>();
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getMonsters();
+}
+
+std::vector<Position> Game::getPositionsInZone(uint16_t zoneId) const {
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return std::vector<Position>();
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getPositions();
+}
+
+
+std::vector<Tile*> Game::getTilesInZone(uint16_t zoneId) const
+{
+	std::vector<Tile*> tiles;
+
+	// Find the zone data by zone ID
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		// Zone not found
+		return tiles;
+	}
+
+	// Get the tiles in the zone
+	const ZoneData& zoneData = it->second;
+	return zoneData.getTiles();
+}
+
+std::vector<Creature*> Game::getCreaturesInZone(uint16_t zoneId) {
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return std::vector<Creature*>();
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getCreatures();
+}
+
+std::vector<Creature*> Game::getCreaturesInZone(uint16_t zoneId, CreatureType_t dataType) {
+	auto it = zoneIdToData.find(zoneId);
+	if (it == zoneIdToData.end()) {
+		return std::vector<Creature*>();
+	}
+
+	const ZoneData& zoneData = it->second;
+	return zoneData.getCreatures(dataType);
+}
+
+
 void Game::removeUniqueItem(uint16_t uniqueId)
 {
 	auto it = uniqueItems.find(uniqueId);

@@ -334,6 +334,7 @@
     <ClInclude Include="..\src\wildcardtree.h" />
     <ClInclude Include="..\src\wings.h" />
     <ClInclude Include="..\src\xtea.h" />
+    <ClInclude Include="..\src\zonedata.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="themodernserver.rc" />

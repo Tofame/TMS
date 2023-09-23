@@ -13,6 +13,7 @@ extern Game g_game;
 extern Vocations g_vocations;
 
 MoveEvents::MoveEvents() :
+	m_lastZoneId(0),
 	scriptInterface("MoveEvents Interface")
 {
 	scriptInterface.initState();
@@ -60,6 +61,7 @@ void MoveEvents::clear(bool fromLua)
 	clearMap(itemIdMap, fromLua);
 	clearMap(actionIdMap, fromLua);
 	clearMap(uniqueIdMap, fromLua);
+	clearMap(m_zoneIdMap, fromLua);
 	clearPosMap(positionMap, fromLua);
 
 	reInitState(fromLua);
@@ -105,6 +107,11 @@ bool MoveEvents::registerEvent(Event_ptr event, const pugi::xml_node& node)
 	}
 
 	pugi::xml_attribute attr;
+	if ((attr = node.attribute("ignoremultiplyevents"))) //<movevent event="StepIn" ignoremultiplyevents="1" zoneid="2" script="zonie.lua" />
+	{
+		booleanHolder.setValue(attr.as_bool());
+	}
+
 	if ((attr = node.attribute("itemid"))) {
 		std::vector<int32_t> idList = vectorAtoi(explodeString(attr.as_string(), ";"));
 
@@ -179,6 +186,25 @@ bool MoveEvents::registerEvent(Event_ptr event, const pugi::xml_node& node)
 
 		Position pos(posList[0], posList[1], posList[2]);
 		addEvent(std::move(*moveEvent), pos, positionMap);
+	} else if ((attr = node.attribute("zoneid"))) { //StepOut isn't functional for zones as of right now too much hassle
+		StringVector zoneList = explodeString(attr.as_string(), ";");
+		for (const auto& child : zoneList)
+		{
+			IntegerVector intVector = vectorAtoi(explodeString(child, "-"));
+			if (!intVector[0])
+			{
+				continue;
+			}
+
+			addEvent(*moveEvent, intVector[0], m_zoneIdMap);
+			if (intVector.size() > 1)
+			{
+				while (intVector[0] < intVector[1])
+				{
+					addEvent(*moveEvent, ++intVector[0], m_zoneIdMap);
+				}
+			}
+		}
 	} else {
 		return false;
 	}
@@ -416,11 +442,38 @@ void MoveEvents::addEvent(MoveEvent moveEvent, const Position& pos, MovePosListM
 
 MoveEvent* MoveEvents::getEvent(const Tile* tile, MoveEvent_t eventType)
 {
-	auto it = positionMap.find(tile->getPosition());
-	if (it != positionMap.end()) {
-		std::list<MoveEvent>& moveEventList = it->second.moveEvent[eventType];
-		if (!moveEventList.empty()) {
+	const Position position = tile->getPosition();
+	auto itMoveEvent = positionMap.find(position);
+	if (itMoveEvent != positionMap.end())
+	{
+		std::list<MoveEvent>& moveEventList = itMoveEvent->second.moveEvent[eventType];
+		if (!moveEventList.empty())
+		{
 			return &(*moveEventList.begin());
+		}
+	}
+	const uint16_t zoneId = tile->getZoneId();
+
+	bool ignoremultiplyevents = booleanHolder.getValue(); //IgnoreMultiplyEvents is true or false we can choose in xml
+	if (zoneId == m_lastZoneId && ignoremultiplyevents == true) {
+		return nullptr;
+	}
+
+	if (zoneId != m_lastZoneId) { //m_lastZoneId saves zoneid we just walked in, and stops script if its the same on next tile
+		m_lastZoneId = zoneId;
+	}
+	if (zoneId != 0)
+	{
+		auto itZoneMoveEvent = m_zoneIdMap.find(zoneId);
+		if (itZoneMoveEvent != m_zoneIdMap.end())
+		{
+			std::list<MoveEvent>& moveEventList = itZoneMoveEvent->second.moveEvent[eventType];
+			if (!moveEventList.empty())
+			{
+				MoveEvent* event = &(*moveEventList.begin());
+				return event;
+
+			}
 		}
 	}
 	return nullptr;
