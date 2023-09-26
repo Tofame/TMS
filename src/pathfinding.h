@@ -3,6 +3,7 @@
 #include <atomic>
 #include <condition_variable>
 #include "enums.h"
+#include <functional>
 
 class PathFinding
 {
