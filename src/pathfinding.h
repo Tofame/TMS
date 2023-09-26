@@ -1,6 +1,3 @@
-#ifndef __PATHFINDING_H__
-#define __PATHFINDING_H__
-
 #include <vector>
 #include <thread>
 #include <atomic>
@@ -55,5 +52,3 @@ class PathFinding
 };
 
 extern PathFinding g_pathfinding;
-
-#endif

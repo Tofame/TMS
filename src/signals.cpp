@@ -23,7 +23,9 @@
 #include "events.h"
 #include "scheduler.h"
 #include "databasetasks.h"
+#include "pathfinding.h"
 
+extern PathFinding g_pathfinding;
 extern Scheduler g_scheduler;
 extern DatabaseTasks g_databaseTasks;
 extern Dispatcher g_dispatcher;
