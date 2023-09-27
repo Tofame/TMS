@@ -22,7 +22,6 @@
 #include <fmt/format.h>
 
 extern ConfigManager g_config;
-extern Actions actions;
 extern CreatureEvents* g_creatureEvents;
 extern Chat* g_chat;
 
