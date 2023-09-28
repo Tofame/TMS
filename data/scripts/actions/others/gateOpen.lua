@@ -1,3 +1,4 @@
+-- Credits : Dewral
 ------------------------ Configuration ------------------------
 local levers = {
     [5005] = {
