@@ -227,3 +227,7 @@ function getPlayerDatabaseInfo(name_or_guid)
 	result.free(query)
 	return info
 end
+
+function Position:getString()
+    return self.x .. ", " .. self.y .. ", " .. self.z
+end
