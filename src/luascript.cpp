@@ -4692,12 +4692,13 @@ int LuaScriptInterface::luaGameReload(lua_State* L)
 
 int LuaScriptInterface::luaGameSendAnimatedText(lua_State* L)
 {
-    // Game.sendAnimatedText(message, position, color)
+    // Game.sendAnimatedText(message, position, color, font)
     int parameters = lua_gettop(L);
     if (parameters < 3) {
         pushBoolean(L, false);
         return 1;
     }
+	const std::string& font = getString(L, 4);
     TextColor_t color = getNumber<TextColor_t>(L, 3);
     const Position& position = getPosition(L, 2);
     const std::string& message = getString(L, 1);
@@ -4705,7 +4706,7 @@ int LuaScriptInterface::luaGameSendAnimatedText(lua_State* L)
         pushBoolean(L, false);
         return 1;
     }
-    g_game.addAnimatedText(message, position, color);
+    g_game.addAnimatedText(message, position, color, font);
     pushBoolean(L, true);
     return 1;
 }
