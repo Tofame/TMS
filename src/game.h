@@ -65,7 +65,6 @@ class Game
 		Game();
 		~Game();
 
-		std::set<uint32_t> monsterRecalculatePath;
 		// non-copyable
 		Game(const Game&) = delete;
 		Game& operator=(const Game&) = delete;
@@ -523,10 +522,6 @@ class Game
 		Shaders shaders;
 
 		std::forward_list<Item*> toDecayItems;
-		std::set<Creature*> checkFollowSet;
-		//Follow
-		void checkFollow(bool thread);
-		void addToCheckFollow(Creature* creature);
 
 		std::unordered_set<Tile*> getTilesToClean() const {
 			return tilesToClean;

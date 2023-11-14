@@ -23,7 +23,6 @@
 #include "events.h"
 #include "scheduler.h"
 #include "databasetasks.h"
-#include "pathfinding.h"
 
 extern Scheduler g_scheduler;
 extern DatabaseTasks g_databaseTasks;
@@ -165,7 +164,6 @@ void dispatchSignalHandler(int signal)
 		case SIGBREAK: //Shuts the server down
 			g_dispatcher.addTask(createTask(sigbreakHandler));
 			// hold the thread until other threads end
-			g_pathfinding.join();
 			g_scheduler.join();
 			g_databaseTasks.join();
 			g_dispatcher.join();
