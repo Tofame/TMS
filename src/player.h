@@ -849,9 +849,9 @@ class Player final : public Creature, public Cylinder
 			}
 		}
 
-        void sendAnimatedText(const std::string& message, const Position& pos, TextColor_t color) {
+        void sendAnimatedText(const std::string& message, const Position& pos, TextColor_t color, const std::string& font) {
             if (client) {
-                client->sendAnimatedText(message, pos, color);
+                client->sendAnimatedText(message, pos, color, font);
             }
         }
 

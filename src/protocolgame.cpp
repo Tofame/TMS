@@ -1441,6 +1441,7 @@ void ProtocolGame::sendTextMessage(const TextMessage& message)
 			msg.addByte(message.primary.color);
 			msg.add<uint32_t>(message.secondary.value);
 			msg.addByte(message.secondary.color);
+			msg.addString(message.font); //chakoo
 			break;
 		}
 		case MESSAGE_HEALED:
@@ -1450,6 +1451,7 @@ void ProtocolGame::sendTextMessage(const TextMessage& message)
 			msg.addPosition(message.position);
 			msg.add<uint32_t>(message.primary.value);
 			msg.addByte(message.primary.color);
+			msg.addString(message.font); //chakoo
 			break;
 		}
 		case MESSAGE_GUILD:
@@ -2990,7 +2992,7 @@ void ProtocolGame::sendSpellCooldown(uint8_t spellId, uint32_t time)
 	writeToOutputBuffer(msg);
 }
 
-void ProtocolGame::sendAnimatedText(const std::string& message, const Position& pos, TextColor_t color)
+void ProtocolGame::sendAnimatedText(const std::string& message, const Position& pos, TextColor_t color, const std::string& font)
 {
     if (!canSee(pos)) {
         return;
@@ -3000,6 +3002,7 @@ void ProtocolGame::sendAnimatedText(const std::string& message, const Position& 
     msg.addPosition(pos);
     msg.addByte(color);
     msg.addString(message);
+	msg.addString(font);
     writeToOutputBuffer(msg);
 }
 
