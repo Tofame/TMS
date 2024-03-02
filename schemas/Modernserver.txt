@@ -1,0 +1,2 @@
+modernserver.sql is combined myaac + default TMS schema.sql
+It also has 1/1 account with one GM char (Tofame)
