@@ -74,6 +74,75 @@ closedLevelDoors = {
 	10789, 12095, 12102, 12195, 12204, 19845, 19854, 19985, 19994, 20278, 20287, 22819, 22828, 25286, 25293
 }
 
+-- Useful for binary code etc.
+function decimalToBinary(decimal)
+    local binary = ""
+    local remainder
+
+    while decimal > 0 do
+        remainder = decimal % 2
+        binary = tostring(remainder) .. binary
+        decimal = (decimal - remainder) / 2
+    end
+
+    -- Ensure at least one digit is present
+    if binary == "" then
+        binary = "0"
+    end
+
+    return binary
+end
+
+function binaryToDecimal(binary)
+    local decimal = 0
+    local binaryLen = string.len(binary)
+
+    for i = 1, binaryLen do
+        local bitValue = tonumber(string.sub(binary, i, i))
+        if bitValue == 1 then
+            decimal = decimal + 2^(binaryLen - i)
+        end
+    end
+
+    return decimal
+end
+
+-- e.g. if its 01001 it will return 2
+function countOnesInBinary(binaryString)
+    local count = 0
+    for i = 1, #binaryString do
+        if string.sub(binaryString, i, i) == "1" then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+-- if array does NOT consist of integer keys the #array won't work
+function tableLength(t)
+    local count = 0
+    for _ in pairs(t) do
+        count = count + 1
+    end
+    return count
+end
+
+-- Seconds to hours/minutes/seconds
+function secondsToTime(seconds)
+    local hours = math.floor(seconds / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local remainingSeconds = seconds % 60
+
+    return hours, minutes, remainingSeconds
+end
+--[[
+-- Example usage:
+local totalSeconds = 3665  -- Change this value to your desired duration
+local hours, minutes, seconds = secondsToTime(totalSeconds)
+
+print("Hours:", hours) -- same with minutes, seconds...
+]]--
+
 function getDistanceBetween(firstPosition, secondPosition)
 	local xDif = math.abs(firstPosition.x - secondPosition.x)
 	local yDif = math.abs(firstPosition.y - secondPosition.y)
