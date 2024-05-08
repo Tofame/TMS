@@ -901,6 +901,9 @@ void handleStatsPercentDescription(std::ostringstream& s, const ItemType& it, bo
 void handleAbsorbsPercentDescription(std::ostringstream& s, const ItemType& it, bool& begin);
 void handleAbsorbsFieldsPercentDescription(std::ostringstream& s, const ItemType& it, bool& begin);
 
+// Groups the methods above into one.
+void handleAbilitiesDescription(std::ostringstream& s, const ItemType& it, bool& begin);
+
 void handleMiscDescription(std::ostringstream& s, const ItemType& it, bool& begin);
 
 std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
@@ -921,6 +924,7 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 		}
 	} else if (it.weaponType != WEAPON_NONE) {
 		bool begin = true;
+		// WEAPON DESCRIPTIONS
 		if (it.weaponType == WEAPON_DISTANCE && it.ammoType != AMMO_NONE) {
 			handleWeaponDistanceDescription(s, it, item, subType);
 			begin = false;
@@ -928,31 +932,9 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 			handleWeaponMeleeDescription(s, it, item, subType, begin);
 		}
 
+		// ABILLITIES LIKE SKILLS, STATS ETC.
 		if (it.abilities) {
-			handleSkillsDescription(s, it, begin);
-
-			for (uint8_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; i++) {
-				if (!it.abilities->specialSkills[i]) {
-					continue;
-				}
-
-				if (begin) {
-					begin = false;
-					s << " (";
-				} else {
-					s << ", ";
-				}
-
-				s << getSpecialSkillName(i) << ' ' << std::showpos << it.abilities->specialSkills[i] << '%' << std::noshowpos;
-			}
-
-			handleStatsDescription(s, it, begin);
-			handleStatsPercentDescription(s, it, begin);
-
-			handleAbsorbsPercentDescription(s, it, begin);
-			handleAbsorbsFieldsPercentDescription(s, it, begin);
-
-			handleMiscDescription(s, it, begin);
+			handleAbilitiesDescription(s, it, begin);
 		}
 
 		if (!begin) {
@@ -961,6 +943,7 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 	} else if (it.armor != 0 || (item && item->getArmor() != 0) || it.showAttributes) {
 		bool begin = true;
 
+		// FOR EQ WITH ARMOR
 		int32_t armor = (item ? item->getArmor() : it.armor);
 		if (armor != 0) {
 			s << " (Arm:" << armor;
@@ -968,21 +951,14 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 		}
 
 		if (it.abilities) {
-			handleSkillsDescription(s, it, begin);
-
-			handleStatsDescription(s, it, begin);
-			handleStatsPercentDescription(s, it, begin);
-
-			handleAbsorbsPercentDescription(s, it, begin);
-			handleAbsorbsFieldsPercentDescription(s, it, begin);
-
-			handleMiscDescription(s, it, begin);
+			handleAbilitiesDescription(s, it, begin);
 		}
 
 		if (!begin) {
 			s << ')';
 		}
 	} else if (it.isContainer() || (item && item->getContainer())) {
+		bool begin = true;
 		uint32_t volume = 0;
 		if (!item || !item->hasAttribute(ITEM_ATTRIBUTE_UNIQUEID)) {
 			if (it.isContainer()) {
@@ -993,7 +969,16 @@ std::string Item::getDescription(const ItemType& it, int32_t lookDistance,
 		}
 
 		if (volume != 0) {
-			s << " (Vol:" << volume << ')';
+			s << " (Vol:" << volume;
+			begin = false;
+		}
+
+		if (it.abilities) {
+			handleAbilitiesDescription(s, it, begin);
+		}
+
+		if (!begin) {
+			s << ')';
 		}
 	} else {
 		bool found = true;
@@ -1632,6 +1617,21 @@ void handleSkillsDescription(std::ostringstream& s, const ItemType& it, bool& be
 
 		s << getSkillName(i) << ' ' << std::showpos << it.abilities->skills[i] << std::noshowpos;
 	}
+
+	for (uint8_t i = SPECIALSKILL_FIRST; i <= SPECIALSKILL_LAST; i++) {
+		if (!it.abilities->specialSkills[i]) {
+			continue;
+		}
+
+		if (begin) {
+			begin = false;
+			s << " (";
+		} else {
+			s << ", ";
+		}
+
+		s << getSpecialSkillName(i) << ' ' << std::showpos << it.abilities->specialSkills[i] << '%' << std::noshowpos;
+	}
 }
 
 void handleStatsDescription(std::ostringstream& s, const ItemType& it, bool& begin) {
@@ -1775,4 +1775,16 @@ void handleMiscDescription(std::ostringstream& s, const ItemType& it, bool& begi
 
 		s << "speed " << std::showpos << (it.abilities->speed >> 1) << std::noshowpos;
 	}
+}
+
+void handleAbilitiesDescription(std::ostringstream& s, const ItemType& it, bool& begin) {
+	handleSkillsDescription(s, it, begin);
+
+	handleStatsDescription(s, it, begin);
+	handleStatsPercentDescription(s, it, begin);
+
+	handleAbsorbsPercentDescription(s, it, begin);
+	handleAbsorbsFieldsPercentDescription(s, it, begin);
+
+	handleMiscDescription(s, it, begin);
 }
