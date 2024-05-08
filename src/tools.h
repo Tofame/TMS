@@ -57,7 +57,6 @@ std::string getCombatName(CombatType_t combatType);
 
 std::string getSpecialSkillName(uint8_t skillid);
 std::string getSkillName(uint8_t skillid);
-std::string getStatName(uint8_t id);
 
 uint32_t adlerChecksum(const uint8_t* data, size_t length);
 

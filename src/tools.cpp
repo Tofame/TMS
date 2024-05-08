@@ -801,23 +801,6 @@ std::string getSkillName(uint8_t skillid)
 	}
 }
 
-std::string getStatName(uint8_t id)
-{
-	switch (id) {
-		case STAT_MAXHITPOINTS:
-			return "max hitpoints";
-
-		case STAT_MAXMANAPOINTS:
-			return "max manapoints";
-
-		case STAT_MAGICPOINTS:
-			return "magic level";
-
-		default:
-			return "unknown";
-	}
-}
-
 uint32_t adlerChecksum(const uint8_t* data, size_t length)
 {
 	if (length > NETWORKMESSAGE_MAXSIZE) {

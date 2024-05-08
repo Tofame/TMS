@@ -298,7 +298,7 @@ enum skills_t : uint8_t {
 enum stats_t {
 	STAT_MAXHITPOINTS,
 	STAT_MAXMANAPOINTS,
-	//STAT_SOULPOINTS, // unused
+	STAT_SOULPOINTS, // unused
 	STAT_MAGICPOINTS,
 
 	STAT_FIRST = STAT_MAXHITPOINTS,
