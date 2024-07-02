@@ -4036,6 +4036,7 @@ bool Game::combatChangeHealth(Creature* attacker, Creature* target, CombatDamage
 			std::string spectatorMessage;
 
 			TextMessage message;
+			message.font = "verdana-11px-rounded";
 			message.position = targetPos;
 			message.primary.value = realHealthChange;
 			message.primary.color = TEXTCOLOR_PASTELRED;
@@ -4368,6 +4369,7 @@ bool Game::combatChangeMana(Creature* attacker, Creature* target, CombatDamage& 
 		std::string spectatorMessage;
 
 		TextMessage message;
+		message.font = "verdana-11px-rounded";
 		message.position = targetPos;
 		message.primary.value = manaLoss;
 		message.primary.color = TEXTCOLOR_BLUE;
@@ -4426,17 +4428,17 @@ void Game::addCreatureHealth(const SpectatorVec& spectators, const Creature* tar
 	}
 }
 
-void Game::addAnimatedText(const std::string& message, const Position& pos, TextColor_t color)
+void Game::addAnimatedText(const std::string& message, const Position& pos, TextColor_t color,const std::string& font)
 {
     SpectatorVec spectators;
     map.getSpectators(spectators, pos, true, true);
-    addAnimatedText(spectators, message, pos, color);
+    addAnimatedText(spectators, message, pos, color, font);
 }
-void Game::addAnimatedText(const SpectatorVec& spectators, const std::string& message, const Position& pos, TextColor_t color)
+void Game::addAnimatedText(const SpectatorVec& spectators, const std::string& message, const Position& pos, TextColor_t color, const std::string& font)
 {
     for (Creature* spectator : spectators) {
         if (Player* tmpPlayer = spectator->getPlayer()) {
-            tmpPlayer->sendAnimatedText(message, pos, color);
+            tmpPlayer->sendAnimatedText(message, pos, color, font);
         }
     }
 }

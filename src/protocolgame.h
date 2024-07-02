@@ -25,6 +25,7 @@ extern Game g_game;
 struct TextMessage
 {
 	MessageClasses type = MESSAGE_STATUS_DEFAULT;
+	std::string font;
 	std::string text;
 	Position position;
 	uint16_t channelId;
@@ -213,7 +214,7 @@ class ProtocolGame final : public Protocol
 		void sendUpdatedVIPStatus(uint32_t guid, VipStatus_t newStatus);
 		void sendVIP(uint32_t guid, const std::string& name, const std::string& description, uint32_t icon, bool notify, VipStatus_t status);
 		void sendVIPEntries();
-		void sendAnimatedText(const std::string& message, const Position& pos, TextColor_t color);
+		void sendAnimatedText(const std::string& message, const Position& pos, TextColor_t color, const std::string& font);
 
 		void sendPendingStateEntered();
 		void sendEnterWorld();
